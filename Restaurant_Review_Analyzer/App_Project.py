@@ -5,20 +5,22 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from textblob import TextBlob
 
-
+# --- Streamlit Page Config ---
 st.set_page_config(
     page_title="Restaurant Review Analyzer",
     page_icon=":fork_and_knife:",
     layout="wide"
 )
+
 st.header("Restaurant Review Analyzer 🍽️")
 
+# --- Styling ---
 st.markdown("""
 <style>
-/* Make input boxes darker and match the theme */
+/* Input Boxes */
 [data-testid="stTextInput"] > div > div > input,
 [data-testid="stTextArea"] > div > textarea {
-    color: #f8fafc !important;             /* light text for contrast */
+    color: #f8fafc !important;
     border-radius: 7px;
     border: 1.5px solid #4b5563;
     font-size: 1.09em;
@@ -29,11 +31,8 @@ st.markdown("""
     opacity: 1 !important;
     font-style: italic;
 }
-</style>
-""", unsafe_allow_html=True)
 
-st.markdown("""
-<style>
+/* Fonts and Background */
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Roboto:wght@400;500&display=swap');
 
 .stApp {
@@ -42,7 +41,7 @@ st.markdown("""
     color: #eaeaea !important;
 }
 
-/* Sidebar: deep slate-blue, matches dark theme */
+/* Sidebar Styling */
 [data-testid="stSidebar"] {
     background: linear-gradient(160deg, #232932 95%, #23324a 100%) !important;
     color: #eaf0fa !important;
@@ -50,12 +49,6 @@ st.markdown("""
     border-bottom-right-radius: 20px;
     box-shadow: 6px 0 32px #000a;
 }
-[data-testid="stSidebar"] h1, [data-testid="stSidebar"] h2, [data-testid="stSidebar"] h3, [data-testid="stSidebar"] p, [data-testid="stSidebar"] label, [data-testid="stSidebar"] span, [data-testid="stSidebar"] input {
-    color: #eaf0fa !important;
-    font-family: 'Montserrat', Arial, sans-serif;
-}
-
-/* Sidebar Welcome Card: soft with dark text, blue border */
 .sidebar-welcome {
     background: #212b3a;
     border-radius: 18px;
@@ -65,55 +58,44 @@ st.markdown("""
     box-shadow: 0 2px 8px #28334780;
     text-align: center;
 }
-.sidebar-welcome h2 {
-    color: #eaf0fa !important;
-    font-family: 'Montserrat', Arial, sans-serif;
-    font-weight: 700;
-    letter-spacing: 1px;
-}
 .sidebar-welcome p {
     color: #bedafc !important;
     font-size: 1em;
 }
+
+/* Headings */
 .stTitle, h1 {
     color: #64c1f7 !important;
     font-family: 'Montserrat', Arial, sans-serif;
-    letter-spacing: 2px;
-    text-shadow: 0 2px 10px #05090f34;
 }
 h2, h3 {
     color: #caf0f8 !important;
     font-family: 'Montserrat', Arial, sans-serif;
 }
+
+/* Tables */
 .stDataFrame, .stTable {
     background: #1e2633 !important;
     border-radius: 16px !important;
     color: #f3f3f3 !important;
     font-size: 1.07em !important;
     box-shadow: 0 2px 14px #1c2737bc;
-    margin-bottom: 16px;
 }
+
+/* Buttons */
 .stButton>button {
     background-color: #64c1f7 !important;
     color: #232932 !important;
     border-radius: 8px !important;
     font-weight: 600;
-    letter-spacing: 1px;
     border: none !important;
-    transition: 0.2s;
 }
 .stButton>button:hover {
     background-color: #3997ea !important;
     color: #fff !important;
 }
-a {
-    color: #6bc7ff !important;
-    font-weight: bold;
-}
 </style>
 """, unsafe_allow_html=True)
-
-
 
 # --- Load Data ---
 file_path = "Hyderabad_Unique_Restaurants_Cleaned.xlsx"
@@ -140,64 +122,42 @@ def analyze_sentiment(text):
     else:
         return "Neutral"
 
-# --- Store User Reviews ---
+# --- Session for User Reviews ---
 if "reviews" not in st.session_state:
     st.session_state["reviews"] = pd.DataFrame(columns=["Restaurant_Name", "Review_Text", "Sentiment", "User_Rating"])
 
-
 # --- Sidebar ---
 st.sidebar.image("logo.png", width=120)
-st.sidebar.markdown(
-    "<div style='font-size: 1.6em; font-family: Montserrat, sans-serif; color: #64c1f7; font-weight: 700; letter-spacing: 1px;'></div>",
-    unsafe_allow_html=True
-)
-
-
 st.sidebar.markdown("""
 <div class='sidebar-welcome'>
-    <p style="font-size:1em; color: #eaf0fa">Start exploring Hyderabad's best restaurants 🍽️</p>
+    <p>Explore Hyderabad's best restaurants 🍽️</p>
 </div>
 """, unsafe_allow_html=True)
-# --- Sidebar User Controls ---
-budget_choice = st.sidebar.selectbox(
-    "Select Budget", ["$", "$$", "$$$"], index=0
-)
 
-min_rating = st.sidebar.slider(
-    "Minimum Rating", min_value=1.0, max_value=5.0, value=3.5, step=0.1
-)
-
+budget_choice = st.sidebar.selectbox("Select Budget", ["$", "$$", "$$$"], index=0)
+min_rating = st.sidebar.slider("Minimum Rating", 1.0, 5.0, 3.5, 0.1)
 cuisine_options = ["All"] + sorted(df["Cuisine"].dropna().unique())
-cuisine_choice = st.sidebar.selectbox(
-    "Cuisine", cuisine_options
-)
+cuisine_choice = st.sidebar.selectbox("Cuisine", cuisine_options)
+search_name = st.sidebar.text_input("Search by Restaurant Name", "")
 
-search_text = st.sidebar.text_input(
-    "Search by Name", ""
-)
-
+# --- Tabs ---
 tab1, tab2, tab3 = st.tabs(["🌟 Recommended", "📝 Reviews", "📊 Insights"])
 
-
-# --- Recommendations ---
-
+# --- TAB 1: Recommendations ---
 with tab1:
     st.subheader("✨ Recommended Restaurants")
     filtered_df = df[(df["Price_Range"] == budget_choice) & (df["Average_Rating"] >= min_rating)]
-
     if cuisine_choice != "All":
         filtered_df = filtered_df[filtered_df["Cuisine"] == cuisine_choice]
-
-    if search_text:
-        filtered_df = filtered_df[filtered_df["Restaurant_Name"].str.contains(search_text, case=False, na=False)]
+    if search_name:
+        filtered_df = filtered_df[filtered_df["Restaurant_Name"].str.contains(search_name, case=False, na=False)]
 
     if not filtered_df.empty:
         st.dataframe(filtered_df[["Restaurant_Name", "Cuisine", "Avg_Price_Restaurant", "Average_Rating", "Restaurant_Popularity"]])
     else:
         st.warning("No restaurants found matching your filters.")
 
-# --- Add Review ---
-
+# --- TAB 2: User Reviews ---
 with tab2:
     st.subheader("📝 Add Your Review")
     with st.form("review_form"):
@@ -207,7 +167,7 @@ with tab2:
         submit = st.form_submit_button("Submit Review")
 
     if submit:
-        if restaurant_name.strip() != "" and review_text.strip() != "":
+        if restaurant_name.strip() and review_text.strip():
             sentiment = analyze_sentiment(review_text)
             new_review = pd.DataFrame({
                 "Restaurant_Name": [restaurant_name],
@@ -220,18 +180,17 @@ with tab2:
         else:
             st.error("Please provide both restaurant name and review text.")
 
-        # --- Show All Reviews ---
-        if not st.session_state["reviews"].empty:
-            st.subheader("📖 User Reviews")
-            st.dataframe(st.session_state["reviews"])
+    if not st.session_state["reviews"].empty:
+        st.subheader("📖 User Reviews")
+        st.dataframe(st.session_state["reviews"])
 
-# --- Visualizations ---
-
+# --- TAB 3: Visual Insights ---
 with tab3:
     st.subheader("📊 Visual Insights")
 
     col1, col2 = st.columns(2)
 
+    # --- Price Distribution ---
     with col1:
         st.markdown("**Distribution of Average Prices**")
         fig, ax = plt.subplots()
@@ -239,12 +198,26 @@ with tab3:
         ax.set_xlabel("Average Price")
         st.pyplot(fig)
 
+    # --- Ratings Distribution (Now combines both main df + user reviews) ---
     with col2:
         st.markdown("**Distribution of Ratings**")
-        fig, ax = plt.subplots()
-        sns.countplot(x="Average_Rating", data=df, palette="viridis", ax=ax)
+        combined_ratings = pd.concat([
+            df[["Restaurant_Name", "Average_Rating"]].rename(columns={"Average_Rating": "Rating"}),
+            st.session_state["reviews"][["Restaurant_Name", "User_Rating"]].rename(columns={"User_Rating": "Rating"})
+        ], ignore_index=True)
+
+        if search_name:
+            combined_ratings = combined_ratings[combined_ratings["Restaurant_Name"].str.contains(search_name, case=False, na=False)]
+
+        fig, ax = plt.subplots(figsize=(6, 4))
+        sns.stripplot(x="Restaurant_Name", y="Rating", data=combined_ratings, jitter=True, palette="viridis", ax=ax)
+        ax.set_title("Different Ratings per Restaurant")
+        ax.set_xlabel("Restaurant")
+        ax.set_ylabel("Rating")
+        ax.tick_params(axis='x', rotation=45)
         st.pyplot(fig)
 
+    # --- Additional Visuals ---
     col3, col4 = st.columns(2)
 
     with col3:
