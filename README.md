@@ -35,3 +35,17 @@ Platform: VS Code
 https://www.kaggle.com/datasets/gauravkumar2525/zomato-restaurant-dataset  
 
 Above dataset has been retrieved from Kaggle. It is a complete dataset of restaurant reviews done by Zomato. The dataset includes information about the restaurants themselves, such as their names and locations, as well as operational details like whether they offer online delivery or table booking. It also includes user-generated data, such as ratings, the number of votes, and specific review comments, which are valuable for sentiment analysis. Additionally, it contains pricing information and other attributes that help in understanding dining patterns and market trends.
+
+
+## **Methodology:**
+<img width="551" height="893" alt="image" src="https://github.com/user-attachments/assets/af7b0e39-5d3f-4866-9d35-6e26efdf10c1" />
+
+## **Final Document:**
+[PBL Review-4 Documetation.docx](https://github.com/user-attachments/files/23382233/PBL.Review-4.Documetation.docx)
+
+## ""Final Review PPT:**
+[Review 4_Restaurant Review Analyzer.pptx](https://github.com/user-attachments/files/23382246/Review.4_Restaurant.Review.Analyzer.pptx)
+
+
+
+
