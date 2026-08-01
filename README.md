@@ -7,7 +7,7 @@ The "Restaurant Review Analyzer" project processes reviews, using sentiment anal
 Mangu Ananya - 2410030479  
 Ankitha Choudhary - 2410030203  
 Meghana Gorakanti - 2410030487  
-Syed Hasham - 2410030106  
+Syed Hashma - 2410030106  
 
  ## **Problem Statement:**  
 Choosing a restaurant is often confusing due to too many options, inconsistent star ratings, and lack of personalized suggestions. Traditional systems fail to capture true customer sentiment or match preferences with budget.
